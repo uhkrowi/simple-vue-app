@@ -1,4 +1,4 @@
-# simple-todo-crud
+# simple-vue-app
 
 ## Project setup
 ```
