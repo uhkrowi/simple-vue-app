@@ -3,9 +3,9 @@
     <div class="form">
       <div class="todo-input">
         <!-- Todo title field -->
-        <input placeholder="Type new todo"/>
+        <input placeholder="Type new todo" v-model="newTitle" />
         <!-- Submit or update button -->
-        <button @click="_ => {}">Submit</button>
+        <button @click="submitForm()">Submit</button>
       </div>
       <!-- Table of todo list -->
       <table>
@@ -28,10 +28,10 @@
             <td>
               <div class="action-container">
                 <!-- Edit button of todo object -->
-                <span @click="_ => {}">Edit</span>
+                <span @click="editData(todo)">Edit</span>
                 <div class="space"></div>
                 <!-- Delete single button of todo object -->
-                <span @click="_ => {}">Delete</span>
+                <span @click="deleteData(todo.id)">Delete</span>
               </div>
             </td>
           </tr>
@@ -47,10 +47,58 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data() {
     return {
-      todos: []
+      api: 'https://fiber-todo.herokuapp.com/api/todos',
+      newTitle: '',
+      todos: [],
+      formMode: 'create',
+      idToUpdate: ''
+    }
+  },
+  mounted() {
+    this.fetchData()
+  },
+  methods: {
+    async fetchData() {
+      const result = await axios.get(this.api)
+      this.todos = result.data.data.todos
+      const url = '123'
+      const a = await axios.get(url) 
+    },
+    createData() {
+      const newTodo = {
+        title: this.newTitle,
+        completed: false
+      }
+
+      axios.post(this.api, newTodo)
+      .then(_ => {
+        this.fetchData()
+      })
+    },
+    editData(todo) {
+      this.formMode = 'update'
+      this.idToUpdate = todo.id
+      this.newTitle = todo.title
+    },
+    submitForm() {
+      if(this.formMode === 'create') {
+        this.createData()
+      } else {
+        this.updateData()
+      }
+    },
+    async updateData() {
+      await axios.put(this.api + '/' + this.idToUpdate, {title: this.newTitle})
+      this.fetchData()
+    },
+    async deleteData(id) {
+      await axios.delete(this.api + '/' + id)
+      this.fetchData()
     }
   }
 }
